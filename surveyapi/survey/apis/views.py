@@ -5,20 +5,22 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from survey.models import *
-from survey.api2.serializers.serializers import *
-from survey.api2.serializers.serializers2 import *
-from survey.api2.generics import GetPatchAPIView
+from survey.apis.serializers.serializers import *
+from survey.apis.serializers.serializers2 import *
+from survey.apis.generics import GetPatchAPIView
+
 
 @api_view(['GET'])
-def api2_root(request, format=None):
+def api_api2_root(request):
     return Response({
         'admin': {
-            'schemas': reverse('scheme-list', request=request, format=format),
+            'doc': reverse('api-api2-doc', request=request, format=format),
+            'schemas': reverse('schema-list', request=request, format=format),
             'participants': reverse('participant-list', request=request, format=format),
         },
         'participant': reverse('survey-list', request=request, format=format),
     })
-    
+
 class ParticipantAPIViewMixin:
     queryset = Participant.objects.all()
 
@@ -28,13 +30,11 @@ class ParticipantListAPIView(ParticipantAPIViewMixin, generics.ListAPIView):
         permissions.IsAdminUser
     ]
 
-
 class ParticipantDetailAPIView(ParticipantAPIViewMixin):
     serializer_class = ParticipantDetailSerializer
     permission_classes = [
         permissions.IsAuthenticatedOrReadOnly
     ]
-
 
 class SchemeAPIViewMixin:
     queryset = Schema.objects.all()
@@ -44,7 +44,6 @@ class SchemeAPIViewMixin:
 
     def convert_request_data(self, request):
         view_field = self.serializer_class.view_field
-        # todo: не через _mutable
         if not isinstance(request.data, dict):
             request.data._mutable = True
         questions = request.data.pop(view_field, [])

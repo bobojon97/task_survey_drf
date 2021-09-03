@@ -1,8 +1,8 @@
 from django.urls import path
 from django.urls.conf import include
-from survey.api.views import ExampleView
+from survey.api.views import api_versions_list
 
 urlpatterns = [
-    path("", ExampleView, name="api-version-list"),
-    path("api2/", include("api.api2.urls"), name="api2")
+    path("", api_versions_list, name="api-version-list"),
+    path("apis/", include("survey.apis.urls"), name="apis")
 ]
